@@ -34,10 +34,29 @@ interface Props {
   setSemitone: (semitone: number) => void;
   isPlaying: boolean;
   setIsShifter: (shifter: boolean) => void;
+  setProgress: (progress: number) => void;
+  seekTime: number;
+  setCurrentTime: (time: string) => void;
+  setDuration: (time: string) => void;
+  setEndTime: (time: number) => void;
+  setIsPlaying: (isPlaying: boolean) => void;
 }
 
 const Controls = (props: Props) => {
-  const { pitchValue, setPitchValue, semitone, setSemitone, isPlaying, setIsShifter } = props;
+  const {
+    pitchValue,
+    setPitchValue,
+    semitone,
+    setSemitone,
+    isPlaying,
+    setIsPlaying,
+    setIsShifter,
+    setCurrentTime,
+    setProgress,
+    seekTime,
+    setDuration,
+    setEndTime,
+  } = props;
 
   function checkingForBuffer() {
     let flag: boolean = false;
@@ -49,7 +68,22 @@ const Controls = (props: Props) => {
 
       if (audioBuffer) {
         setIsShifter(true);
+        setDuration(shifter.formattedDuration);
+        setEndTime(shifter.duration);
+
         flag = true;
+
+        shifter.on('play', (event: any) => {
+          setProgress(event.timePlayed);
+          setCurrentTime(event.formattedTimePlayed);
+
+          if (event.percentagePlayed === 100) {
+            shifter.percentagePlayed = 0;
+            setIsPlaying(false);
+            setCurrentTime('0:00');
+            setProgress(0);
+          }
+        });
       }
     }, 1_000);
   }
@@ -60,10 +94,20 @@ const Controls = (props: Props) => {
 
   useEffect(() => {
     if (shifter) {
+      console.log(shifter);
+
+      console.log(seekTime);
+
+      // shifter.percentagePlayed = seekTime;
+    }
+  }, [seekTime]);
+
+  useEffect(() => {
+    if (shifter) {
       const calculatedPitch = setPitchTranspose(semitone, pitchValue);
       shifter.pitch = calculatedPitch;
     }
-    [shifter, pitchValue, semitone];
+    [pitchValue, semitone];
   });
 
   useEffect(() => {
