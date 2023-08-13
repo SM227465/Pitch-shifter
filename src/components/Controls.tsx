@@ -7,22 +7,24 @@ import { PitchShifter } from 'soundtouchjs';
 
 let audioCtx: AudioContext;
 let shifter: any;
+let gainNode: GainNode;
+let audioBuffer: AudioBuffer;
 
 export async function connectSoundtouch(buffer: ArrayBuffer) {
   if (!audioCtx) {
     audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
   }
 
-  const gainNode = audioCtx.createGain();
+  if (!gainNode) {
+    gainNode = audioCtx.createGain();
+  }
 
   if (shifter) {
     shifter.off();
   }
 
-  const audioBuffer = await audioCtx.decodeAudioData(buffer);
+  audioBuffer = await audioCtx.decodeAudioData(buffer);
   shifter = new PitchShifter(audioCtx, audioBuffer, 16384);
-  shifter.connect(gainNode);
-  gainNode.connect(audioCtx.destination);
 }
 
 interface Props {
@@ -30,18 +32,95 @@ interface Props {
   setPitchValue: (pitchValue: number) => void;
   semitone: number;
   setSemitone: (semitone: number) => void;
+  isPlaying: boolean;
+  setIsShifter: (shifter: boolean) => void;
+  setProgress: (progress: number) => void;
+  seekTime: number;
+  setCurrentTime: (time: string) => void;
+  setDuration: (time: string) => void;
+  setEndTime: (time: number) => void;
+  setIsPlaying: (isPlaying: boolean) => void;
 }
 
 const Controls = (props: Props) => {
-  const { pitchValue, setPitchValue, semitone, setSemitone } = props;
+  const {
+    pitchValue,
+    setPitchValue,
+    semitone,
+    setSemitone,
+    isPlaying,
+    setIsPlaying,
+    setIsShifter,
+    setCurrentTime,
+    setProgress,
+    seekTime,
+    setDuration,
+    setEndTime,
+  } = props;
+
+  function checkingForBuffer() {
+    let flag: boolean = false;
+
+    const intervalInstance = setInterval(() => {
+      if (flag) {
+        clearInterval(intervalInstance);
+      }
+
+      if (audioBuffer) {
+        setIsShifter(true);
+        setDuration(shifter.formattedDuration);
+        setEndTime(shifter.duration);
+
+        flag = true;
+
+        shifter.on('play', (event: any) => {
+          setProgress(event.timePlayed);
+          setCurrentTime(event.formattedTimePlayed);
+
+          if (event.percentagePlayed === 100) {
+            shifter.percentagePlayed = 0;
+            setIsPlaying(false);
+            setCurrentTime('0:00');
+            setProgress(0);
+          }
+        });
+      }
+    }, 1_000);
+  }
+
+  useEffect(() => {
+    checkingForBuffer();
+  }, []);
+
+  // TODO: have to fix audio seek issue
+  useEffect(() => {
+    // if (shifter) {
+    //   console.log(shifter);
+    //   console.log(seekTime);
+    //   shifter.percentagePlayed = seekTime;
+    // }
+  }, [seekTime]);
 
   useEffect(() => {
     if (shifter) {
       const calculatedPitch = setPitchTranspose(semitone, pitchValue);
       shifter.pitch = calculatedPitch;
     }
-    [shifter, pitchValue, semitone];
-  });
+  }, [pitchValue, semitone]);
+
+  useEffect(() => {
+    if (!shifter) {
+      return;
+    }
+
+    if (isPlaying) {
+      shifter.connect(gainNode);
+      gainNode.connect(audioCtx.destination);
+      audioCtx.resume();
+    } else {
+      shifter.disconnect();
+    }
+  }, [isPlaying]);
 
   return (
     <Box bg='#f7e9e9' mt={20} style={{ borderRadius: '21px' }} p={20}>
@@ -54,6 +133,7 @@ const Controls = (props: Props) => {
           <Flex gap={10} align='center' justify='space-between'>
             <Text w={50}>-1</Text>
             <Slider
+              disabled={!shifter}
               w='100%'
               radius='xl'
               color='pink'
@@ -76,6 +156,7 @@ const Controls = (props: Props) => {
           <Flex gap={10} align='center' justify='space-between'>
             <Text w={50}>-12</Text>
             <Slider
+              disabled={!shifter}
               w='100%'
               radius='xl'
               color='pink'
@@ -97,7 +178,7 @@ const Controls = (props: Props) => {
           </Group>
           <Flex gap={10} align='center' justify='space-between'>
             <Text w={50}>-2</Text>
-            <Slider w='100%' radius='xl' color='pink' defaultValue={60} />
+            <Slider disabled={!shifter} w='100%' radius='xl' color='pink' defaultValue={60} />
             <Text ta='right' w={50}>
               2
             </Text>

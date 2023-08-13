@@ -7,16 +7,50 @@ import { useState } from 'react';
 function App() {
   const [pitchValue, setPitchValue] = useState(0);
   const [semitone, setSemitone] = useState(0);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [isShifter, setIsShifter] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [seekTime, setSeekTime] = useState(0);
+  const [currentTime, setCurrentTime] = useState('0:00');
+  const [duration, setDuration] = useState('0:00');
+  const [endTime, setEndTime] = useState(0);
+  // const [audioDuration, setAudioDuration] = useState({
+  //   currentTime: '0',
+  //   endTime: 0,
+  //   formattedDuration: '0',
+  // });
+
+  function handlePlayPause() {
+    setIsPlaying((state: boolean) => !state);
+  }
 
   return (
     <Container>
       <OnlineFile />
-      <OfflineFile />
+      <OfflineFile
+        isPlaying={isPlaying}
+        handlePlayPause={handlePlayPause}
+        isShifter={isShifter}
+        currentTime={currentTime}
+        progress={progress}
+        setProgress={setProgress}
+        setSeekTime={setSeekTime}
+        duration={duration}
+        endTime={endTime}
+      />
       <Controls
         pitchValue={pitchValue}
         setPitchValue={setPitchValue}
         semitone={semitone}
         setSemitone={setSemitone}
+        isPlaying={isPlaying}
+        setIsPlaying={setIsPlaying}
+        setIsShifter={setIsShifter}
+        setCurrentTime={setCurrentTime}
+        setProgress={setProgress}
+        seekTime={seekTime}
+        setDuration={setDuration}
+        setEndTime={setEndTime}
       />
     </Container>
   );
