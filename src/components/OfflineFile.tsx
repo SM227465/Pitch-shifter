@@ -25,6 +25,7 @@ const OfflineFile = (props: Props) => {
     setProgress,
     duration,
     endTime,
+    setSeekTime,
   } = props;
   const [value] = useState<File | null>(null);
   const [fileName, setFileName] = useState<string | null>(null);
@@ -45,10 +46,8 @@ const OfflineFile = (props: Props) => {
   }
 
   function handleAudioSeek(event: number) {
-    console.log(event);
-    // const pct = Number(((event / audioDuration.endTime) * 100).toFixed(2));
-    // console.log('PCT', pct);
-    // setSeekTime(pct);
+    const pct = Number(((event / endTime) * 100).toFixed(2));
+    setSeekTime(pct);
   }
 
   return (
@@ -69,7 +68,7 @@ const OfflineFile = (props: Props) => {
             max={endTime}
             value={progress}
             onChangeEnd={(event) => handleAudioSeek(event)}
-            // label={(value) => `${value} °C`}
+            label={(value) => `${((value / endTime) * 100).toFixed(1)} %`}
             onChange={(value) => setProgress(value)}
           />
           <Text ta='right' w={50}>

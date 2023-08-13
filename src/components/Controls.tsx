@@ -92,14 +92,13 @@ const Controls = (props: Props) => {
     checkingForBuffer();
   }, []);
 
+  // TODO: have to fix audio seek issue
   useEffect(() => {
-    if (shifter) {
-      console.log(shifter);
-
-      console.log(seekTime);
-
-      // shifter.percentagePlayed = seekTime;
-    }
+    // if (shifter) {
+    //   console.log(shifter);
+    //   console.log(seekTime);
+    //   shifter.percentagePlayed = seekTime;
+    // }
   }, [seekTime]);
 
   useEffect(() => {
@@ -107,8 +106,7 @@ const Controls = (props: Props) => {
       const calculatedPitch = setPitchTranspose(semitone, pitchValue);
       shifter.pitch = calculatedPitch;
     }
-    [pitchValue, semitone];
-  });
+  }, [pitchValue, semitone]);
 
   useEffect(() => {
     if (!shifter) {
