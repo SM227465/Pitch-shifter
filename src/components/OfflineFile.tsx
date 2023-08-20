@@ -13,6 +13,8 @@ interface Props {
   currentTime: string;
   duration: string;
   endTime: number;
+  setFileName: (fileName: string) => void;
+  fileName: string;
 }
 
 const OfflineFile = (props: Props) => {
@@ -26,9 +28,11 @@ const OfflineFile = (props: Props) => {
     duration,
     endTime,
     setSeekTime,
+    setFileName,
+    fileName,
   } = props;
   const [value] = useState<File | null>(null);
-  const [fileName, setFileName] = useState<string | null>(null);
+  // const [fileName, setFileName] = useState<string | null>(null);
 
   async function handleFileChange(event: File | null) {
     if (!event) {
@@ -100,7 +104,7 @@ const OfflineFile = (props: Props) => {
             />
           )}
           {fileName && (
-            <Button radius='xl' onClick={() => setFileName(null)}>
+            <Button radius='xl' onClick={() => setFileName('')}>
               Clear
             </Button>
           )}

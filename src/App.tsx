@@ -14,6 +14,7 @@ function App() {
   const [currentTime, setCurrentTime] = useState('0:00');
   const [duration, setDuration] = useState('0:00');
   const [endTime, setEndTime] = useState(0);
+  const [fileName, setFileName] = useState<string>('');
   // const [audioDuration, setAudioDuration] = useState({
   //   currentTime: '0',
   //   endTime: 0,
@@ -26,7 +27,7 @@ function App() {
 
   return (
     <Container>
-      <OnlineFile />
+      <OnlineFile setFileName={setFileName} setIsShifter={setIsShifter} />
       <OfflineFile
         isPlaying={isPlaying}
         handlePlayPause={handlePlayPause}
@@ -37,6 +38,8 @@ function App() {
         setSeekTime={setSeekTime}
         duration={duration}
         endTime={endTime}
+        setFileName={setFileName}
+        fileName={fileName}
       />
       <Controls
         pitchValue={pitchValue}
