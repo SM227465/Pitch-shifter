@@ -28,11 +28,9 @@ const OnlineFile = (props: Props) => {
     setProcessing(true);
     const baseUrl = 'https://youtube-video-to-audiobuffer.onrender.com/';
     const res = await fetch(`${baseUrl}api/v1/yt/${videoId}`);
-    console.log(res);
 
     const buffer = await res.arrayBuffer();
     setProcessing(false);
-    console.log(buffer);
     if (buffer) {
       connectSoundtouch(buffer);
       setIsShifter(true);
@@ -44,7 +42,6 @@ const OnlineFile = (props: Props) => {
       `https://youtube-video-to-audio-link.onrender.com/api/v1/info/${videoId}`
     );
     const data = await res.json();
-    console.log(data);
     if (data.success) {
       setFileName(data.details.title);
     }
