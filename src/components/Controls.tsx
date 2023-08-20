@@ -1,5 +1,5 @@
 import { Box, Flex, Group, Slider, Text } from '@mantine/core';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { setPitchTranspose } from '../utils';
 
 // @ts-ignore
@@ -57,6 +57,8 @@ const Controls = (props: Props) => {
     setDuration,
     setEndTime,
   } = props;
+
+  const [playbackRate, setPlaybackRate] = useState(1.0);
 
   function checkingForBuffer() {
     let flag: boolean = false;
@@ -122,6 +124,16 @@ const Controls = (props: Props) => {
     }
   }, [isPlaying]);
 
+  useEffect(() => {
+    if (shifter) {
+      shifter.tempo = playbackRate;
+    }
+  }, [playbackRate]);
+
+  function handlePlaybackRate(event: number) {
+    setPlaybackRate(event);
+  }
+
   return (
     <Box bg='#f7e9e9' mt={20} style={{ borderRadius: '21px' }} p={20}>
       <Flex direction={'column'} gap={20}>
@@ -174,13 +186,24 @@ const Controls = (props: Props) => {
         <Flex direction='column' gap={10}>
           <Group position='center' spacing={3}>
             <Text fw={600}>Speed :</Text>
-            <Text>5:00</Text>
+            <Text>{playbackRate.toFixed(2)}x</Text>
           </Group>
           <Flex gap={10} align='center' justify='space-between'>
-            <Text w={50}>-2</Text>
-            <Slider disabled={!shifter} w='100%' radius='xl' color='pink' defaultValue={60} />
+            <Text w={50}>0.1</Text>
+            <Slider
+              disabled={!shifter}
+              w='100%'
+              radius='xl'
+              color='pink'
+              min={0.1}
+              max={4}
+              step={0.01}
+              value={playbackRate}
+              onChange={(event) => handlePlaybackRate(event)}
+              label={(value) => `${value.toFixed(2)}x`}
+            />
             <Text ta='right' w={50}>
-              2
+              4
             </Text>
           </Flex>
         </Flex>
